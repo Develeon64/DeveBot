@@ -16,7 +16,7 @@ namespace Develeon64.Bots.DeveBot.Modules.Discord;
 
 public class DiscordBot {
 	private readonly ILog           _logger = LogManager.GetLogger("Discord");
-	public static    DatabaseClient Database { get; } = new(ConfigManager.Static.DiscordDatabaseSettings);
+	public           DatabaseClient Database { get; } = new(ConfigManager.Static.DiscordDatabaseSettings);
 
 	private readonly DiscordSocketClient _client        = new(ConfigManager.Static.DiscordSettings);
 	private          byte                _presenceState = 1;
@@ -24,6 +24,8 @@ public class DiscordBot {
 	private readonly InteractionService _service;
 
 	public SocketUser? Programmer { get; private set; }
+	
+	private DateTime started { get; } = DateTime.Now;
 
 	public DiscordBot (string[] args) {
 		this._service = new InteractionService(this._client, ConfigManager.Static.DiscordInteractionSettings);
@@ -47,11 +49,11 @@ public class DiscordBot {
 	private async Task Client_InteractionCreated (SocketInteraction interaction) => await this._service.ExecuteCommandAsync(new SocketInteractionContext(this._client, interaction), null);
 
 	private Task Client_JoinedGuild (SocketGuild guild) {
-		if (!DiscordBot.Database.Exists("users", new Expr("id", OperatorEnum.Equals, guild.OwnerId)))
-			DiscordBot.Database.Insert("users", new Dictionary<string, object> {{"id", guild.OwnerId}, {"username", guild.Owner.Username}, {"discriminator", guild.Owner.DiscriminatorValue}});
+		if (!this.Database.Exists("users", new Expr("id", OperatorEnum.Equals, guild.OwnerId)))
+			this.Database.Insert("users", new Dictionary<string, object> {{"id", guild.OwnerId}, {"username", guild.Owner.Username}, {"discriminator", guild.Owner.DiscriminatorValue}});
 
-		if (!DiscordBot.Database.Exists("guilds", new Expr("id", OperatorEnum.Equals, guild.Id)))
-			DiscordBot.Database.Insert("guilds", new Dictionary<string, object> {{"id", guild.Id}, {"name", guild.Name}, {"owner", guild.OwnerId}});
+		if (!this.Database.Exists("guilds", new Expr("id", OperatorEnum.Equals, guild.Id)))
+			this.Database.Insert("guilds", new Dictionary<string, object> {{"id", guild.Id}, {"name", guild.Name}, {"owner", guild.OwnerId}});
 
 		return Task.CompletedTask;
 	}
@@ -99,7 +101,7 @@ public class DiscordBot {
 		foreach (SocketGuild? guild in this._client.Guilds)
 			await this.Client_JoinedGuild(guild);
 
-		await this._client.SetGameAsync($"{VersionManager.FullVersion} (since {DateTime.Now:dd.MM.yyyy HH:mm:ss})");
+		await this._client.SetGameAsync($"{VersionManager.FullVersion} (since {this.started:dd.MM.yyyy HH:mm:ss})");
 
 		/*if (ConfigManager.Config.Debug) {
 			List<SlashCommandBuilder> slashCommandBuilders = new() {
@@ -143,5 +145,19 @@ public class DiscordBot {
 		}
 
 		return Task.CompletedTask;
+	}
+
+	public async Task<int> CountMembers (SocketGuild guild) {
+		 await guild.DownloadUsersAsync();
+
+		 var          memberCount = 0;
+		 List<string> memberNames = new();
+		 foreach (SocketGuildUser guildUser in guild.Users.ToList().Where(guildUser => !memberNames.Contains(guildUser.Username) && !memberNames.Contains(guildUser.Nickname) && guildUser.Id != 344136468068958218 && guildUser.Id != 372108947303301124)) {
+			 memberCount += 1;
+			 memberNames.Add(guildUser.Username);
+			 if (!string.IsNullOrEmpty(guildUser.Nickname)) memberNames.Add(guildUser.Nickname);
+		 }
+
+		 return memberCount;
 	}
 }

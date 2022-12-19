@@ -15,7 +15,7 @@ public class RulesInteraction : InteractionModuleBase<SocketInteractionContext> 
 
 		try {
 			await this.Context.Guild.Users.ToImmutableDictionary(user => user.Id)[this.Context.User.Id]
-					  .AddRoleAsync((ulong)((long?)DiscordBot.Database.Select("guilds", null, null, null, new Expr("id", OperatorEnum.Equals, this.Context.Guild.Id)).Rows[0].ItemArray[3] ?? 0),
+					  .AddRoleAsync((ulong)((long?)DeveBot.Discord.Database.Select("guilds", null, null, null, new Expr("id", OperatorEnum.Equals, this.Context.Guild.Id)).Rows[0].ItemArray[3] ?? 0),
 								    new RequestOptions {AuditLogReason = "Accepted Rules"}
 								   );
 		}
@@ -45,7 +45,7 @@ public class RulesInteraction : InteractionModuleBase<SocketInteractionContext> 
 		}
 		catch (HttpException ex) {
 			if (ex.DiscordCode == DiscordErrorCode.InsufficientPermissions)
-				await this.FollowupAsync("The bot doesn't have the rights to kick members!");
+				await this.FollowupAsync("The bot doesn't have the rights to kick members!", ephemeral: false);
 			return;
 		}
 
