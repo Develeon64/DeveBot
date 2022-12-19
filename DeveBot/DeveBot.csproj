@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<LangVersion>10</LangVersion>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Develeon64.Bots.DeveBot</RootNamespace>
+		<Authors>Develeon64</Authors>
+		<Company>Develeon64</Company>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="..\README.md">
+			<Link>README.md</Link>
+		</Content>
+		<Content Include="..\.gitignore">
+			<Link>.gitignore</Link>
+		</Content>
+		<Content Include="..\.dockerignore">
+			<Link>.dockerignore</Link>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DatabaseWrapper" Version="5.0.0" />
+		<PackageReference Include="Discord.Net" Version="3.8.1" />
+		<PackageReference Include="FluentScheduler" Version="5.5.1" />
+		<PackageReference Include="log4net" Version="2.0.15" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+		<PackageReference Include="TwitchLib" Version="3.5.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Modules\Twitch" />
+		<Folder Include="Utils\Logger\Renderer" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Copy SourceFiles="Var/Config/Configuration.jsonc;Var/Config/Authentification.jsonc;Var/Config/Logging.xml" DestinationFolder="$(OutputPath)Var/Config" ContinueOnError="false" />
+		<!--<Copy SourceFiles="Var/DB/Database.json" DestinationFolder="$(OutputPath)Var/DB" ContinueOnError="false" /> -->
+	</Target>
+</Project>
