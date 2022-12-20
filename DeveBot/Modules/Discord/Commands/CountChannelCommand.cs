@@ -1,4 +1,5 @@
 ﻿using Develeon64.Bots.DeveBot.Modules.Discord.Commands.Types;
+using Develeon64.Bots.DeveBot.Utils.Managers;
 
 using Discord;
 using Discord.Interactions;
@@ -20,10 +21,10 @@ public class CountChannelCommand : InteractionModuleBase<SocketInteractionContex
 		if (DeveBot.Discord.Database.Exists("count_channels", new Expr("id", OperatorEnum.Equals, channel.Id))) {
 			ComponentBuilder components = new();
 			components.AddRow(new ActionRowBuilder()
-							  .WithButton("No, keep it!",    $"count_channels|overwrite_channel|{channel.Id}|{type}|{prefix}|{postfix}", ButtonStyle.Danger,  new Emoji("❌"))
-							  .WithButton("Yes, overwrite!", "count_channels|overwrite_channel",                                         ButtonStyle.Success, new Emoji("✅"))
+							  .WithButton(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordCountChannelKeep,    $"count_channels|overwrite_channel|{channel.Id}|{type}|{prefix}|{postfix}", ButtonStyle.Danger,  new Emoji("❌"))
+							  .WithButton(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordCountChannelOverwrite, "count_channels|overwrite_channel",                                         ButtonStyle.Success, new Emoji("✅"))
 							 );
-			await this.FollowupAsync("The channel is set to count something already. Should it be overwritten?", components: components.Build());
+			await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordCountChannelOverwriteQuestion, components: components.Build());
 		}
 		else {
 			DeveBot.Discord.Database.Insert("count_channels", new Dictionary<string, object> {{"id", channel.Id}, {"guild", channel.Guild.Id}, {"type", type}, {"prefix", prefix}, {"postfix", postfix}});
@@ -40,7 +41,7 @@ public class CountChannelCommand : InteractionModuleBase<SocketInteractionContex
 					break;
 			}
 			
-			await this.FollowupAsync($"Your count channel has been set:\n> *{channel.Name}*");
+			await this.FollowupAsync($"{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordCountChannelSet}:\n> *{channel.Name}*");
 		}
 	}
 }
