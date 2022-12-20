@@ -19,6 +19,7 @@ public static class DeveBot {
 
 	public static async Task MainAsync (string[] args) {
 		XmlConfigurator.ConfigureAndWatch(new FileInfo("Var/Config/Logging.xml"));
+		LanguageManager.Initialize();
 
 		DeveBot.Logger.Info($"{nameof(DeveBot)} starting up!");
 		DeveBot.Logger.Info($"Version: {VersionManager.FullVersion[1..]}");
