@@ -1,4 +1,5 @@
 ﻿using Develeon64.Bots.DeveBot.Utils;
+using Develeon64.Bots.DeveBot.Utils.Managers;
 
 using Discord;
 using Discord.Interactions;
@@ -22,7 +23,7 @@ public class RulesCommand : InteractionModuleBase<SocketInteractionContext> {
 
 			DeveBot.Discord.Database.Insert("rules", new Dictionary<string, object> {{"guild", this.Context.Guild.Id}, {"paragraph", paragraph}});
 			await this.SendRules();
-			await this.FollowupAsync($"Ok, added\n> {paragraph}");
+			await this.FollowupAsync($"{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesOk}\n> {paragraph}");
 		}
 	}
 
@@ -34,13 +35,13 @@ public class RulesCommand : InteractionModuleBase<SocketInteractionContext> {
 			DataRowCollection? rows = DeveBot.Discord.Database.Select("rules", null, null, null, new Expr("guild", OperatorEnum.Equals, this.Context.Guild.Id)).Rows;
 
 			if (number > rows.Count) {
-				await this.FollowupAsync("You can only edit existing rules");
+				await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesEditOnlyExisting);
 				return;
 			}
 
 			DeveBot.Discord.Database.Update("rules", new Dictionary<string, object> {{"paragraph", paragraph}}, new Expr("id", OperatorEnum.Equals, rows[number - 1].ItemArray[0]));
 			await this.SendRules();
-			await this.FollowupAsync($"Rule ***{number}*** is edited from\n> {rows[number - 1].ItemArray[2]}\nto\n> {paragraph}");
+			await this.FollowupAsync($"{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesEditedFirst} ***{number}*** {LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesEditedSecond}\n> {rows[number - 1].ItemArray[2]}\n{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesEditedThird}\n> {paragraph}");
 		}
 	}
 
@@ -52,13 +53,13 @@ public class RulesCommand : InteractionModuleBase<SocketInteractionContext> {
 			DataRowCollection? rows = DeveBot.Discord.Database.Select("rules", null, null, null, new Expr("guild", OperatorEnum.Equals, this.Context.Guild.Id)).Rows;
 
 			if (number > rows.Count) {
-				await this.FollowupAsync("You can only delete existing rules");
+				await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesDeleteOnlyExisting);
 				return;
 			}
 
 			DeveBot.Discord.Database.Delete("rules", new Expr("id", OperatorEnum.Equals, rows[number - 1].ItemArray[0]));
 			await this.SendRules();
-			await this.FollowupAsync($"Rule ***{number}***\n> {rows[number - 1].ItemArray[2]}\nis now deleted!");
+			await this.FollowupAsync($"{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesDeletedFirst} ***{number}***\n> {rows[number - 1].ItemArray[2]}\n{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesDeletedSecond}!");
 		}
 	}
 
@@ -69,7 +70,7 @@ public class RulesCommand : InteractionModuleBase<SocketInteractionContext> {
 		public async Task SetRole (SocketRole role) {
 			await this.DeferAsync(true);
 			DeveBot.Discord.Database.Update("guilds", new Dictionary<string, object> {{"rules_role", role.Id}}, new Expr("id", OperatorEnum.Equals, this.Context.Guild.Id));
-			await this.FollowupAsync("Role has been set!");
+			await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesRoleSet);
 		}
 	}
 
@@ -89,8 +90,8 @@ public class RulesCommand : InteractionModuleBase<SocketInteractionContext> {
 		}
 
 		DiscordEmbedBuilder embed = new(this.Context.Guild.Owner);
-		embed.WithTitle("__**Server-Rules**__");
-		embed.WithDescription("Rules dies das und so");
+		embed.WithTitle($"__**{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesTitle}**__");
+		embed.WithDescription(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesGeneral);
 
 		DataRowCollection? rows = DeveBot.Discord.Database.Select("rules", null, null, null, new Expr("guild", OperatorEnum.Equals, this.Context.Guild.Id)).Rows;
 		for (var i = 0; i < rows.Count; i++)
@@ -98,11 +99,11 @@ public class RulesCommand : InteractionModuleBase<SocketInteractionContext> {
 
 		ComponentBuilder components = new();
 		components.AddRow(new ActionRowBuilder()
-						  .WithButton("Decline rules", "guild_rules|decline", ButtonStyle.Secondary, new Emoji("❌"))
-						  .WithButton("Accept rules",  "guild_rules|accept",  ButtonStyle.Primary,   new Emoji("✅"))
+						  .WithButton(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesDecline, "guild_rules|decline", ButtonStyle.Secondary, new Emoji("❌"))
+						  .WithButton(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesAccept,  "guild_rules|accept",  ButtonStyle.Primary,   new Emoji("✅"))
 						 );
 
-		RestUserMessage? message = await this.Context.Guild.RulesChannel.SendMessageAsync("@everyone These are the new server rules:", embed: embed.Build(), components: components.Build());
+		RestUserMessage? message = await this.Context.Guild.RulesChannel.SendMessageAsync($"@everyone {LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesNewAnnouncement}:", embed: embed.Build(), components: components.Build());
 		await Task.Delay(1000);
 		await message.ModifyAsync(properties => properties.Content = "");
 	}
@@ -112,14 +113,14 @@ public class RulesCommand : InteractionModuleBase<SocketInteractionContext> {
 			_ = (long?)DeveBot.Discord.Database.Select("guilds", null, null, null, new Expr("id", OperatorEnum.Equals, this.Context.Guild.Id)).Rows[0].ItemArray[3] is not null;
 
 			if (this.Context.Guild.RulesChannel is null) {
-				await this.SendError("Community is not enabled in this server.\nPlease go to the server settings to enable Community.");
+				await this.SendError(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesNoCommunity);
 				return false;
 			}
 
 			return true;
 		}
 		catch {
-			await this.SendError("You haven't selected a role to give accepting members. Set a role with </rules settings role:1054045662582419576>.");
+			await this.SendError($"{LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesNoRole} </rules settings role:1054045662582419576>.");
 			return false;
 		}
 	}

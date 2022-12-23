@@ -1,4 +1,6 @@
-﻿using Discord;
+﻿using Develeon64.Bots.DeveBot.Utils.Managers;
+
+using Discord;
 using Discord.Interactions;
 using Discord.Net;
 
@@ -23,17 +25,17 @@ public class RulesInteraction : InteractionModuleBase<SocketInteractionContext> 
 			// ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
 			switch (ex.DiscordCode) {
 				case DiscordErrorCode.MissingPermissions:
-					await this.FollowupAsync("The bot doesn't have the rights to manage the roles of members!");
+					await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesNoManage);
 					break;
 				case DiscordErrorCode.InsufficientPermissions:
-					await this.FollowupAsync("The highest role of the bot must be higher than the role for accepted members!");
+					await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesHigherRole);
 					break;
 			}
 
 			return;
 		}
 
-		await this.FollowupAsync("Thanks for accepting the rules. You can now start to interact with the server!", ephemeral: true);
+		await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesAcceptThanks, ephemeral: true);
 	}
 
 	[ComponentInteraction("guild_rules|decline")]
@@ -45,10 +47,10 @@ public class RulesInteraction : InteractionModuleBase<SocketInteractionContext> 
 		}
 		catch (HttpException ex) {
 			if (ex.DiscordCode == DiscordErrorCode.InsufficientPermissions)
-				await this.FollowupAsync("The bot doesn't have the rights to kick members!", ephemeral: false);
+				await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesNoKick, ephemeral: false);
 			return;
 		}
 
-		await this.FollowupAsync("You have been kicked from the server, because you declined the rules.", ephemeral: true);
+		await this.FollowupAsync(LanguageManager.Languages[this.Context.Guild.PreferredLocale].DiscordRulesDeclineKick, ephemeral: true);
 	}
 }

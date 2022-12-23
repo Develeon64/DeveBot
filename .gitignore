@@ -984,4 +984,15 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/csharp,dotnetcore,git,jetbrains,linux,notepadpp,rider,visualstudio,visualstudiocode,windows,dotenv,vs
 
 
-Var/
+#DeveBot/Var/
+DeveBot/Var/*
+
+!DeveBot/Var/Config/
+DeveBot/Var/Config/*
+!DeveBot/Var/Config/Logging.xml
+
+DeveBot/Var/DB/
+DeveBot/Var/DB/*
+
+!DeveBot/Var/Lang/
+!DeveBot/Var/Lang/*

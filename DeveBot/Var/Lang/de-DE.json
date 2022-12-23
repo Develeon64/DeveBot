@@ -1,0 +1,28 @@
+﻿{
+  "discord_rules_accept": "Regeln akzeptieren",
+  "discord_rules_accept_thanks": "Danke, dass du die Regeln akzeptiert hast. Du bist nun für den ganzen Server freigeschaltet.",
+  "discord_rules_decline": "Regeln ablehnen",
+  "discord_rules_decline_kick": "Du wurdest vom Server gekickt, weil du die Regeln abgelehnt hast!",
+  "discord_rules_delete_only_existing": "Du kannst nur existierende Regeln löschen.",
+  "discord_rules_deleted_first": "Regel",
+  "discord_rules_deleted_second": "ist gelöscht",
+  "discord_rules_edit_only_existing": "Du kannst nur existierende Regeln bearbeiten.",
+  "discord_rules_edited_first": "Regel",
+  "discord_rules_edited_second": "ist geändert von",
+  "discord_rules_edited_third": "zu",
+  "discord_rules_general": "Here are the rules for this Discord server.\nPlease keep in mind, that in addition to these rules the ***[Discord ToS](https://discord.com/terms)***, ***[Community Guidelines](https://discord.com/guidelines)***, all official ***Laws*** and ***common sense*** apply!\n\nPlease click below to accept the rules and unlock the full server.",
+  "discord_rules_higher_role": "Die höchste Rolle des Bots muss höher sein, als die zu vergebende Rolle.",
+  "discord_rules_new_announcement": "Dies sind die neuen Server-Regeln",
+  "discord_rules_no_community": "Community ist nicht aktiviert.\nBitte aktiviere Community in den Server-Einstellungen.",
+  "discord_rules_no_kick": "Dem Bot fehlen die Berechtigungen, um Mitglieder zu kicken!",
+  "discord_rules_no_manage": "Dem Bot fehlen die Berechtigungen, um Mitgliedern Rollen zu vergeben!",
+  "discord_rules_no_role": "Du hast noch keine zu vergebende Rolle eingestellt. Setze erst eine Rolle fest mit",
+  "discord_rules_ok": "Ok, hinzugefügt",
+  "discord_rules_role_set": "Rolle wurde eingestellt!",
+  "discord_rules_title": "Server-Regeln",
+
+  "discord_count_channel_keep": "Nein, behalten!",
+  "discord_count_channel_overwrite": "Ja, überschreiben!",
+  "discord_count_channel_overwrite_question": "Der Channel ist bereits zum Zählen von etwas Anderem eingestellt. Soll dies überschrieben werden?",
+  "discord_count_channel_set": "Der Channel zum Zählen wurde eingestellt"
+}

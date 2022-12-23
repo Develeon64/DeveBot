@@ -25,7 +25,7 @@ public class DiscordBot {
 
 	public SocketUser? Programmer { get; private set; }
 	
-	private DateTime started { get; } = DateTime.Now;
+	private DateTime Started { get; } = DateTime.Now;
 
 	public DiscordBot (string[] args) {
 		this._service = new InteractionService(this._client, ConfigManager.Static.DiscordInteractionSettings);
@@ -44,6 +44,52 @@ public class DiscordBot {
 
 		await this._client.LoginAsync(TokenType.Bot, ConfigManager.Auth.Discord.Token);
 		await this._client.StartAsync();
+	}
+
+	private async Task Client_Ready () {
+		if (this._client.CurrentUser.Id == 1052895081826361496) {
+			await this._service.RegisterCommandsGloballyAsync();
+		}
+		else {
+			IReadOnlyCollection<SocketApplicationCommand>? commands = await this._client.GetGlobalApplicationCommandsAsync();
+			foreach (SocketApplicationCommand? command in commands)
+				await command.DeleteAsync();
+			//await this._client.Guilds.ToDictionary(guild => guild.Id)[1037303872974233600].DeleteApplicationCommandsAsync();
+			await this._service.RegisterCommandsToGuildAsync(1037303872974233600);
+		}
+
+		this.Programmer = await this._client.GetUserAsync(298215920709664768) as SocketUser;
+
+		foreach (SocketGuild? guild in this._client.Guilds)
+			await this.Client_JoinedGuild(guild);
+
+		//await this._client.SetGameAsync($"{VersionManager.FullVersion} (since {this.started:dd.MM.yyyy HH:mm:ss})");
+	}
+
+	private Task Client_Log (LogMessage message) {
+		switch (message.Severity) {
+			case LogSeverity.Debug:
+				this._logger.Debug($"{message.Source}: {message.Message}", message.Exception);
+				break;
+			case LogSeverity.Info:
+				this._logger.Info($"{message.Source}: {message.Message}", message.Exception);
+				break;
+			case LogSeverity.Warning:
+				this._logger.Warn($"{message.Source}: {message.Message}", message.Exception);
+				break;
+			case LogSeverity.Error:
+				this._logger.Error($"{message.Source}: {message.Message}", message.Exception);
+				break;
+			case LogSeverity.Critical:
+				this._logger.Fatal($"{message.Source}: {message.Message}", message.Exception);
+				break;
+			case LogSeverity.Verbose:
+			default:
+				Console.WriteLine(message);
+				break;
+		}
+
+		return Task.CompletedTask;
 	}
 
 	private async Task Client_InteractionCreated (SocketInteraction interaction) => await this._service.ExecuteCommandAsync(new SocketInteractionContext(this._client, interaction), null);
@@ -82,69 +128,6 @@ public class DiscordBot {
 		}
 
 		this._presenceState = (byte)(this._presenceState < 3 ? this._presenceState + 1 : 0);
-	}
-
-	private async Task Client_Ready () {
-		if (this._client.CurrentUser.Id == 1052895081826361496) {
-			await this._service.RegisterCommandsGloballyAsync();
-		}
-		else {
-			IReadOnlyCollection<SocketApplicationCommand>? commands = await this._client.GetGlobalApplicationCommandsAsync();
-			foreach (SocketApplicationCommand? command in commands)
-				await command.DeleteAsync();
-			//await this._client.Guilds.ToDictionary(guild => guild.Id)[1037303872974233600].DeleteApplicationCommandsAsync();
-			await this._service.RegisterCommandsToGuildAsync(1037303872974233600);
-		}
-
-		this.Programmer = await this._client.GetUserAsync(298215920709664768) as SocketUser;
-
-		foreach (SocketGuild? guild in this._client.Guilds)
-			await this.Client_JoinedGuild(guild);
-
-		await this._client.SetGameAsync($"{VersionManager.FullVersion} (since {this.started:dd.MM.yyyy HH:mm:ss})");
-
-		/*if (ConfigManager.Config.Debug) {
-			List<SlashCommandBuilder> slashCommandBuilders = new() {
-				new() {
-					Name        = "version",
-					Description = "Show Version information of the bot.",
-				},
-				new () {
-					Name = "rules",
-					Description = "Send rules text",
-					DefaultMemberPermissions = GuildPermission.Administrator,
-				},
-			};
-
-			foreach (SlashCommandBuilder command in slashCommandBuilders)
-				await this._guild.CreateApplicationCommandAsync(command.Build());
-		}*/
-	}
-
-	private Task Client_Log (LogMessage message) {
-		switch (message.Severity) {
-			case LogSeverity.Debug:
-				this._logger.Debug($"{message.Source}: {message.Message}", message.Exception);
-				break;
-			case LogSeverity.Info:
-				this._logger.Info($"{message.Source}: {message.Message}", message.Exception);
-				break;
-			case LogSeverity.Warning:
-				this._logger.Warn($"{message.Source}: {message.Message}", message.Exception);
-				break;
-			case LogSeverity.Error:
-				this._logger.Error($"{message.Source}: {message.Message}", message.Exception);
-				break;
-			case LogSeverity.Critical:
-				this._logger.Fatal($"{message.Source}: {message.Message}", message.Exception);
-				break;
-			case LogSeverity.Verbose:
-			default:
-				Console.WriteLine(message);
-				break;
-		}
-
-		return Task.CompletedTask;
 	}
 
 	public async Task<int> CountMembers (SocketGuild guild) {
